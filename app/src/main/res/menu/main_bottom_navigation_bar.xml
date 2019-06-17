@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/icon_home"
+        android:title="@string/home" />
+
+    <item
+        android:id="@+id/nav_ngo"
+        android:icon="@drawable/icon_ngo"
+        android:title="@string/ngo" />
+
+    <item
+        android:id="@+id/nav_chat"
+        android:icon="@drawable/icon_chat"
+        android:title="@string/chat" />
+
+    <item
+        android:id="@+id/nav_my_account"
+        android:icon="@drawable/icon_my_account"
+        android:title="@string/account" />
+
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@drawable/icon_more"
+        android:title="@string/more" />
+
+</menu>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/toolbar_search_ic"
+        android:icon="@drawable/icon_search"
+        android:title="Search"
+        app:actionLayout="@layout/search_view_layout"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/toolbar_favorite_ic"
+        android:icon="@drawable/icon_favorite"
+        android:title="Compose"
+        app:showAsAction="ifRoom" />
+</menu>
