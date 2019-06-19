@@ -33,8 +33,6 @@ public class HomeFragment extends Fragment {
     // tab layout
     private TabLayout mTabLayout;
 
-    private FloatingActionButton mActionBtn;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,19 +52,10 @@ public class HomeFragment extends Fragment {
         mTabLayout.getTabAt(0).setIcon(R.drawable.ic_heart_hands_icon);
         mTabLayout.getTabAt(1).setIcon(R.drawable.ic_event);
 
-        mActionBtn = (FloatingActionButton) view.findViewById(R.id.home_action_fab_btn);
-        mActionBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                executeAction();
-            }
-        });
-
         mTabLayout.addOnTabSelectedListener(new ViewPagerOnTabSelectedListener(mViewPager) {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 super.onTabSelected(tab);
-                mActionBtn.show();
                 try {
 
                     BottomNavigationView bnv = getActivity().findViewById(R.id.main_bottom_nav_bar);
@@ -82,20 +71,6 @@ public class HomeFragment extends Fragment {
             }
         });
         return view;
-    }
-
-    private void executeAction() {
-        if (mTabLayout.getSelectedTabPosition() == 0) // Cases is selected
-        {
-            Intent intent = new Intent(getActivity(), CaseActivity.class);
-            startActivity(intent);
-
-        } else { // Events is selected
-
-            Intent intent = new Intent(getActivity(), EventActivity.class);
-            startActivity(intent);
-
-        }
     }
 
     @Override

@@ -8,14 +8,35 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.EventActivity">
 
-    <include
-        android:id="@+id/event_toolbar"
-        layout="@layout/app_bar_layout" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/event_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/event_cover_img"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                app:layout_collapseMode="parallax" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_marginTop="8dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -23,108 +44,63 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/event_add_cover_btn"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="8dp"
-                    android:text="Add Cover Picture"
-                    android:textAppearance="@style/MyCustomTabText"
-                    app:icon="@drawable/ic_add" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/event_cover_img"
-                    android:layout_width="match_parent"
-                    android:layout_height="250dp"
-                    android:scaleType="centerCrop"
-                    android:visibility="gone" />
-            </FrameLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/event_title_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="10dp"
-                app:boxBackgroundColor="@color/custom_text_field_text_color">
+                android:text="Case Title"
+                android:textColor="@color/colorTitle"
+                android:textSize="18sp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/event_title_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Title"
-                    android:inputType="text"
-                    android:textColor="@color/custom_text_field_text_color"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/event_body_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/event_body_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="top"
-                    android:hint="Body"
-                    android:inputType="textMultiLine"
-                    android:lineSpacingExtra="4dp"
-                    android:textColor="@color/custom_text_field_text_color"
-                    android:textSize="16sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="25dp"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:lineSpacingExtra="4dp"
+                android:text="Body"
+                android:textColor="@color/colorSubTitle"
+                android:textSize="16sp" />
 
 
-            <com.google.android.material.textfield.TextInputLayout
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/event_location_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="10dp"
-                android:layout_weight="0.5">
+                android:drawableStart="@drawable/ic_location"
+                android:drawablePadding="5dp"
+                android:drawableTint="@color/colorPrimary"
+                android:inputType="text"
+                android:text="Location"
+                android:textColor="@color/colorBlack"
+                android:textSize="14sp" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/event_location_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_location"
-                    android:drawablePadding="5dp"
-                    android:drawableTint="@color/colorPrimary"
-                    android:hint="Location"
-                    android:inputType="text"
-                    android:textColor="@color/custom_text_field_text_color"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/event_time_field"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/event_time_field"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_time"
-                    android:drawablePadding="5dp"
-                    android:drawableTint="@color/colorAccent"
-                    android:hint="Time"
-                    android:inputType="none"
-                    android:textColor="@color/custom_text_field_text_color"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginBottom="10dp"
+                android:drawableStart="@drawable/ic_time"
+                android:drawablePadding="5dp"
+                android:drawableTint="@color/colorAccent"
+                android:inputType="none"
+                android:text="Time"
+                android:textColor="@color/colorBlack"
+                android:textSize="14sp" />
 
 
             <androidx.appcompat.widget.LinearLayoutCompat
@@ -133,29 +109,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/event_add_picture_btn"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="8dp"
-                    android:text="Add Picture"
-                    android:textAppearance="@style/MyCustomTabText"
-                    app:icon="@drawable/ic_add" />
             </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.core.widget.NestedScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/event_fab_btn"
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="24dp"
-        android:src="@drawable/ic_done"
-        android:tag="done"
-        app:maxImageSize="32dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
