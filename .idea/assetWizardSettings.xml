@@ -51,7 +51,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="scalingPercent" value="38" />
+                                                <entry key="scalingPercent" value="95" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -63,9 +63,7 @@
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundColor" value="30bc7f" />
-                                      <entry key="foregroundImage" value="F:\NGO Project\ic_launcher_foreground.xml" />
-                                      <entry key="generateLegacyIcon" value="false" />
-                                      <entry key="generateRoundIcon" value="false" />
+                                      <entry key="foregroundImage" value="F:\NGO Project\Customer_App\app\src\main\res\drawable\ic_launcher_foreground.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>

@@ -32,16 +32,12 @@ public class RegisterActivity extends AppCompatActivity {
     private TextInputEditText mFirstName;
     private TextInputEditText mLastName;
     private TextInputEditText mEmailAddress;
-    private TextInputEditText mOrgName;
-    private TextInputEditText mOrgAddress;
     private TextInputEditText mPass;
     private TextInputEditText mPassAgain;
 
     private TextInputLayout mFirstNameLayout;
     private TextInputLayout mLastNameLayout;
     private TextInputLayout mEmailAddressLayout;
-    private TextInputLayout mOrgNameLayout;
-    private TextInputLayout mOrgAddressLayout;
     private TextInputLayout mPassLayout;
     private TextInputLayout mPassAgainLayout;
 
@@ -87,16 +83,12 @@ public class RegisterActivity extends AppCompatActivity {
         mFirstName = (TextInputEditText) findViewById(R.id.reg_first_name_field);
         mLastName = (TextInputEditText) findViewById(R.id.reg_last_name_field);
         mEmailAddress = (TextInputEditText) findViewById(R.id.reg_email_field);
-        mOrgName = (TextInputEditText) findViewById(R.id.reg_org_name_field);
-        mOrgAddress = (TextInputEditText) findViewById(R.id.reg_org_address_field);
         mPass = (TextInputEditText) findViewById(R.id.reg_pass_field);
         mPassAgain = (TextInputEditText) findViewById(R.id.reg_pass_again_field);
 
         mFirstNameLayout = (TextInputLayout) findViewById(R.id.reg_first_name_layout);
         mLastNameLayout = (TextInputLayout) findViewById(R.id.reg_last_name_layout);
         mEmailAddressLayout = (TextInputLayout) findViewById(R.id.reg_email_layout);
-        mOrgNameLayout = (TextInputLayout) findViewById(R.id.reg_org_name_layout);
-        mOrgAddressLayout = (TextInputLayout) findViewById(R.id.reg_org_address_layout);
         mPassLayout = (TextInputLayout) findViewById(R.id.reg_pass_layout);
         mPassAgainLayout = (TextInputLayout) findViewById(R.id.reg_pass_again_layout);
 
@@ -109,8 +101,6 @@ public class RegisterActivity extends AppCompatActivity {
                 final String first_name = mFirstName.getText().toString();
                 final String last_name = mLastName.getText().toString();
                 final String email_address = mEmailAddress.getText().toString();
-                final String org_name = mOrgName.getText().toString();
-                final String org_address = mOrgAddress.getText().toString();
                 final String password = mPass.getText().toString();
                 final String passwordAgain = mPassAgain.getText().toString();
 
@@ -123,12 +113,12 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 if (TextUtils.isEmpty(first_name) || TextUtils.isEmpty(last_name) ||
-                        TextUtils.isEmpty(email_address) || TextUtils.isEmpty(org_name) ||
-                        TextUtils.isEmpty(org_address)) {
+                        TextUtils.isEmpty(email_address) || TextUtils.isEmpty(password) ||
+                        TextUtils.isEmpty(passwordAgain)) {
 
                     // please dont crash ... i hate you ... ( update >> it works fuck i love you )
                     mRegProgress.hide();
-                    validate_reg(first_name, last_name, email_address, org_name, org_address, password, passwordAgain);
+                    validate_reg(first_name, last_name, email_address, password, passwordAgain);
                 } else {
                     // show progress dialog registring the user ...
                     mRegProgress.setTitle("Creating Account");
@@ -137,10 +127,11 @@ public class RegisterActivity extends AppCompatActivity {
                     mRegProgress.show();
 
                     if (correctEmail == true) {
-                        registerUser(first_name, last_name, email_address, org_name, org_address, password, passwordAgain);
+                        registerUser(first_name, last_name, email_address, password, passwordAgain);
                     } else {
                         mRegProgress.hide();
-                        Toast.makeText(RegisterActivity.this, "Wrong Email Address !", Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegisterActivity.this, "Wrong Email Address !",
+                                Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -148,8 +139,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser(final String first_name, final String last_name,
-                              final String email_address, final String org_name, final String org_address,
-                              final String password, final String passwordAgain) {
+                              final String email_address, final String password, final String passwordAgain) {
 
         mAuth.createUserWithEmailAndPassword(email_address, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
@@ -164,13 +154,9 @@ public class RegisterActivity extends AppCompatActivity {
                     HashMap<String, Object> userMap = new HashMap<>();
                     userMap.put("first_name", first_name);
                     userMap.put("last_name", last_name);
-                    userMap.put("org_name", org_name);
-                    userMap.put("org_address", org_address);
                     userMap.put("status", "Hi there , i'm using CharitAble App");
                     userMap.put("profile_image", "default");
                     userMap.put("thumb_image", "default");
-                    userMap.put("cases_num", 0);
-                    userMap.put("events_num", 0);
 
                     mDatabase.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
@@ -203,15 +189,14 @@ public class RegisterActivity extends AppCompatActivity {
                     // If sign in fails, display a message to the user.
                     // and if we got some errors we will hide it instead of dismissing it ...
                     mRegProgress.hide();
-                    validate_reg(first_name, last_name, email_address, org_name, org_address, password, passwordAgain);
+                    validate_reg(first_name, last_name, email_address, password, passwordAgain);
                 }
             }
         });
     }
 
     private void validate_reg(String first_name, String last_name,
-                              String email_address, String orgName, String orgAddress,
-                              String password, String passwordAgain) {
+                              String email_address, String password, String passwordAgain) {
         // validating the sign up data
         boolean validationError = false;
 
@@ -231,19 +216,6 @@ public class RegisterActivity extends AppCompatActivity {
             validationError = true;
             mEmailAddressLayout.setErrorEnabled(true);
             mEmailAddressLayout.setError("Please enter your emaill address");
-        }
-
-        if (isEmpty(orgName)) {
-            validationError = true;
-            mOrgNameLayout.setErrorEnabled(true);
-
-            mOrgNameLayout.setError("Please enter your organization name");
-        }
-
-        if (isEmpty(orgAddress)) {
-            validationError = true;
-            mOrgAddressLayout.setErrorEnabled(true);
-            mOrgAddressLayout.setError("Please enter your organization address");
         }
 
         if (!password.equals(passwordAgain)) {

@@ -25,23 +25,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class EventsFragment extends Fragment implements ChildEventListener, SwipeRefreshLayout.OnRefreshListener {
+public class EventsFragment extends Fragment implements ChildEventListener, SwipeRefreshLayout.OnRefreshListener, ValueEventListener {
     public EventsFragment() {
         // Required empty public constructor
     }
-
-    public EventsFragment(String ngoId) {
-        mNgoId = ngoId;
-        mNested = true;
-    }
-
-    private boolean mNested = false;
-    private String mNgoId = null;
 
     // firebase Database
     private DatabaseReference mDatabase;
@@ -53,8 +46,9 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
     private EventListAdapter mAdapter;
     private SwipeRefreshLayout mRefreshLayout;
 
-    private String mOrgName;
-    private String mOrgThumb;
+    public EventsFragment(String ngoId) {
+        // load specific ngo profile
+    }
 
     @Nullable
     @Override
@@ -63,15 +57,12 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_events, container, false);
 
-        if (!mNested)
-            mActionFab = getParentFragment().getView().findViewById(R.id.home_action_fab_btn);
-
         mEventsListView = (RecyclerView) view.findViewById(R.id.event_fragment_recycler_view);
         mNoEventsTxt = (AppCompatTextView) view.findViewById(R.id.event_fragment_no_events_txt);
         mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_fragment_refresh_layout);
 
         mEvents = new ArrayList<>();
-        mAdapter = new EventListAdapter(getContext(), mEvents, false, mNested);
+        mAdapter = new EventListAdapter(getContext(), mEvents, true);
 
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 1);
 
@@ -81,29 +72,11 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
 
         mRefreshLayout.setOnRefreshListener(this);
 
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Events"); // All ngo's events
 
-        if (mNested)
-            currentUserId = mNgoId;
+        //mDatabase.addChildEventListener(this);
+        mDatabase.addValueEventListener(this);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Events").child(currentUserId);
-
-        mDatabase.addChildEventListener(this);
-
-        mEventsListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (mActionFab == null)
-                    return;
-
-                if (dy > 0) {
-                    mActionFab.hide();
-                } else if (dy < 0) {
-                    mActionFab.show();
-                }
-            }
-        });
         return view;
     }
 
@@ -122,32 +95,91 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         mAdapter.notifyDataSetChanged();
     }
 
+    private ArrayList<DatabaseReference> mRefs = new ArrayList<>();
+
+    // Value event listerner for all ngo nodes
     @Override
-    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-        mRefreshLayout.setRefreshing(false); // stop refreshing
+    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        // remove listener
+        // we will be kept updated with child event listener attached to every ngo node
+        mDatabase.removeEventListener((ValueEventListener) this);
 
-        Event eventRef = loadFromSnapshot(dataSnapshot);
+        // data snapshot of events node
+        // iterate each ngo node
+        for (final DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            // listen for add, remove, change in this ngo events data
+            DatabaseReference ngoRef = snapshot.getRef();
+            ngoRef.addChildEventListener(this);
 
-        mNoEventsTxt.setVisibility(View.GONE);
-
-        mEvents.add(eventRef);
-
-        sortList();
+            mRefs.add(ngoRef);
+        }
     }
 
     @Override
-    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+    public void onCancelled(@NonNull DatabaseError databaseError) {
+    }
+
+    // child event listener for all events nodes under an ngo node
+
+    // event added to an ngo node
+    @Override
+    public void onChildAdded(final @NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+        // this snapshot from an event just added
+        // get parent node of it that represents the ngo
+        String ngoId = dataSnapshot.getRef().getParent().getKey(); // ngo of this event
+
+        // Load ngo name & thumb
+        FirebaseDatabase.getInstance().getReference()
+                .child("Users")
+                .child(ngoId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot ngoProfileDataSnapshot) {
+                        mRefreshLayout.setRefreshing(false); // stop refreshing
+
+                        ngoProfileDataSnapshot.getRef().removeEventListener(this); // remove listener
+
+                        String ngoName = ngoProfileDataSnapshot.child("org_name").getValue().toString();
+                        String thumbImg = ngoProfileDataSnapshot.child("thumb_image").getValue().toString();
+
+                        Event eventRef = loadFromSnapshot(dataSnapshot);
+
+                        eventRef.setOrgName(ngoName);
+                        eventRef.setOrgThumb(thumbImg);
+
+                        mNoEventsTxt.setVisibility(View.GONE);
+
+                        mEvents.add(eventRef);
+
+                        sortList();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        databaseError.toException().printStackTrace();
+                    }
+                });
+    }
+
+    @Override
+    public void onChildChanged(final @NonNull DataSnapshot dataSnapshot, @Nullable String s) {
         mRefreshLayout.setRefreshing(false); // stop refreshing
 
-        Event newEvent = loadFromSnapshot(dataSnapshot);
+        // ngo event node changed
+        for (DataSnapshot eventSnapshot : dataSnapshot.getChildren()) {
+            Event newEvent = loadFromSnapshot(eventSnapshot);
 
-        for (int i = 0; i < mEvents.size(); i++) {
-            Event oldEvent = mEvents.get(i);
+            for (int i = 0; i < mEvents.size(); i++) {
+                Event oldEvent = mEvents.get(i);
 
-            if (oldEvent.getEventId().equals(dataSnapshot.getKey())) {
-                mEvents.set(i, newEvent);
-                mAdapter.notifyItemChanged(mEvents.indexOf(i));
-                break;
+                if (oldEvent.getEventId().equals(eventSnapshot.getKey())) {
+                    newEvent.setOrgName(oldEvent.getOrgName());
+                    newEvent.setOrgThumb(oldEvent.getOrgThumb());
+
+                    mEvents.set(i, newEvent);
+                    mAdapter.notifyItemChanged(mEvents.indexOf(i));
+                    break;
+                }
             }
         }
 
@@ -164,8 +196,6 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         eventRef.setLocation(dataSnapshot.child("location").getValue().toString());
         eventRef.setTime(Long.valueOf(dataSnapshot.child("time").getValue().toString()));
         eventRef.setTimestamp(Long.valueOf(dataSnapshot.child("timestamp").getValue().toString()));
-        eventRef.setOrgName(mOrgName);
-        eventRef.setOrgThumb(mOrgThumb);
 
         if (dataSnapshot.hasChild("thumb_img"))
             eventRef.setThumbImg(dataSnapshot.child("thumb_img").getValue().toString());
@@ -183,7 +213,7 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
 
     @Override
     public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-        final String eventId = dataSnapshot.getKey();
+        String eventId = dataSnapshot.getKey();
         for (Event eventRef : mEvents) {
             if (eventRef.getEventId().equals(eventId)) {
                 int i = mEvents.indexOf(eventRef);
@@ -203,16 +233,19 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
     public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
     }
 
-    @Override
-    public void onCancelled(@NonNull DatabaseError databaseError) {
-    }
 
     @Override
     public void onRefresh() {
         mEvents.clear();
         mAdapter.notifyDataSetChanged();
 
-        mDatabase.removeEventListener(this);
-        mDatabase.addChildEventListener(this);
+        // remove listener for each ngo node, will be attached again to reload data
+        for (DatabaseReference ref : mRefs) {
+            ref.removeEventListener((ChildEventListener) this);
+            mRefs.remove(ref);
+        }
+
+        // reload data
+        mDatabase.addValueEventListener(this);
     }
 }

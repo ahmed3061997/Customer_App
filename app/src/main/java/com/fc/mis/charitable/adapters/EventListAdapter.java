@@ -34,21 +34,15 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
     private Context mContext;
     private List<Event> mEvents;
     private boolean mDisplayOrg = false;
-    private boolean mViewOnly = false;
 
-    public EventListAdapter(Context context, List<Event> events, boolean displayOrg, boolean viewOnly) {
+    public EventListAdapter(Context context, List<Event> events, boolean displayOrg) {
         this.mContext = context;
         this.mEvents = events;
         this.mDisplayOrg = displayOrg;
-        this.mViewOnly = viewOnly;
     }
 
     public boolean isDisplayOrg() {
         return mDisplayOrg;
-    }
-
-    public boolean isViewOnly() {
-        return mViewOnly;
     }
 
     @NonNull
@@ -98,15 +92,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             mContentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showEvent(false);
-                }
-            });
-
-            mContentLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    showMenu();
-                    return false;
+                    showEvent();
                 }
             });
         }
@@ -114,10 +100,10 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         public void bindEvent(Event eventRef) {
             this.mEventRef = eventRef;
 
-            loadImage(mCoverImg, mEventRef.getThumbImg());
+            loadImage(mCoverImg, mEventRef.getThumbImg(), true);
 
             if (isDisplayOrg()) {
-                loadImage(mOrgImg, mEventRef.getOrgThumb());
+                loadImage(mOrgImg, mEventRef.getOrgThumb(), false);
                 mOrgName.setText(mEventRef.getOrgName());
             } else {
                 mOrgImg.setVisibility(View.GONE);
@@ -160,7 +146,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
             LanguageDetection.checkLanguageLayoutDirectionForAr(mBody);
         }
 
-        private void loadImage(final AppCompatImageView imageView, final String url) {
+        private void loadImage(final AppCompatImageView imageView, final String url, final boolean placeHolder) {
             if (url == null || TextUtils.isEmpty(url) || url.equals("default")) {
                 imageView.setVisibility(View.GONE); // ensure image view is invisible
                 return;
@@ -170,57 +156,36 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
             imageView.setVisibility(View.VISIBLE);
 
-            Picasso.get().load(url).networkPolicy(NetworkPolicy.OFFLINE)
-                    .placeholder(R.drawable.image_place_holder).into(imageView, new Callback() {
-                @Override
-                public void onSuccess() {
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Picasso.get().load(url).placeholder(R.drawable.image_place_holder).into(imageView);
-                }
-            });
-        }
-
-        public void showMenu() {
-            if (isViewOnly())
-                return;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
-
-            builder.setItems(new String[]{"View", "Edit", "Delete"}, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) {
-                        showEvent(false);
-                    } else if (which == 1) {
-                        showEvent(true);
-                    } else if (which == 2) {
-                        removeEvent();
+            if (placeHolder)
+                Picasso.get().load(url).networkPolicy(NetworkPolicy.OFFLINE)
+                        .placeholder(R.drawable.image_place_holder).into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
                     }
-                }
-            });
 
-            builder.create().show();
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(url).placeholder(R.drawable.image_place_holder).into(imageView);
+                    }
+                });
+            else
+                Picasso.get().load(url).networkPolicy(NetworkPolicy.OFFLINE)
+                        .noPlaceholder().into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(url).noPlaceholder().into(imageView);
+                    }
+                });
         }
 
-        private void showEvent(boolean edit) {
-            if (isViewOnly())
-                return;
-
+        private void showEvent() {
             Intent intent = new Intent(mContext, EventActivity.class);
-            intent.putExtra("EditMode", edit);
             intent.putExtra("Event", mEventRef);
             mContext.startActivity(intent);
-        }
-
-        private void removeEvent() {
-            mEventRef.remove();
-
-            notifyItemRemoved(mEvents.indexOf(mEventRef));
-
-            mEvents.remove(mEventRef);
         }
     }
 }

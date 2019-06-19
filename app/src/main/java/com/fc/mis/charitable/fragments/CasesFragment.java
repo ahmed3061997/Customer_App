@@ -63,9 +63,6 @@ public class CasesFragment extends Fragment implements ChildEventListener, Swipe
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_cases, container, false);
 
-        if (!mNested)
-            mActionFab = getParentFragment().getView().findViewById(R.id.home_action_fab_btn);
-
         mCasesListView = (RecyclerView) view.findViewById(R.id.case_fragment_recycler_view);
         mNoCasesTxt = (AppCompatTextView) view.findViewById(R.id.case_fragment_no_cases_txt);
         mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.case_fragment_refresh_layout);
