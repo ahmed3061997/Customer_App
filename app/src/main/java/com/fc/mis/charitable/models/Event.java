@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Event implements Serializable {
+    private String mNgoId;
     private String mEventId;
     private String mTitle;
     private String mBody;
@@ -40,6 +41,14 @@ public class Event implements Serializable {
 
     public void setEventId(String caseId) {
         this.mEventId = caseId;
+    }
+
+    public String getNgoId() {
+        return mNgoId;
+    }
+
+    public void setNgoId(String ngoId) {
+        this.mNgoId = ngoId;
     }
 
     public String getTitle() {

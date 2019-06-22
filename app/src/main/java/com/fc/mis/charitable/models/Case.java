@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Case implements Serializable {
+    private String mNgoId;
     private String mCaseId;
     private String mTitle;
     private String mBody;
@@ -38,6 +39,14 @@ public class Case implements Serializable {
 
     public void setCaseId(String caseId) {
         this.mCaseId = caseId;
+    }
+
+    public String getNgoId() {
+        return mNgoId;
+    }
+
+    public void setNgoId(String ngoId) {
+        this.mNgoId = ngoId;
     }
 
     public String getTitle() {
@@ -102,59 +111,5 @@ public class Case implements Serializable {
 
     public void setDonated(int donated) {
         this.mDonated = donated;
-    }
-
-    public void remove() {
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-
-        databaseReference
-                .child("Cases")
-                .child(User.getCurrentUserId())
-                .child(mCaseId)
-                .removeValue();
-
-        User.getCurrentUser().modifyCounter("cases", -1); // decrement
-    }
-
-    public static void saveCase(final Case caseRef, final OnCompleteListener<Void> completeListener) {
-        String userId = User.getCurrentUserId(); // ngo id
-        String caseId = caseRef.getCaseId();
-
-        final DatabaseReference databaseRef;
-
-        if (caseId == null) {
-            databaseRef = FirebaseDatabase.getInstance().getReference()
-                    .child("Cases")
-                    .child(userId) // ngo id
-                    .push(); // case id (generated)
-
-            // new case
-            User.getCurrentUser().modifyCounter("cases", 1); // increment
-
-        } else {
-            databaseRef = FirebaseDatabase.getInstance().getReference()
-                    .child("Cases")
-                    .child(userId) // ngo id
-                    .child(caseId); // case id (given)
-        }
-
-        HashMap<String, Object> caseMap = new HashMap<>();
-        caseMap.put("title", caseRef.getTitle());
-        caseMap.put("body", caseRef.getBody());
-        caseMap.put("timestamp", ServerValue.TIMESTAMP);
-        caseMap.put("needed", caseRef.getNeeded());
-        caseMap.put("donated", String.valueOf(caseRef.getDonated()));
-
-        if (caseRef.getThumbImg() == null)
-            caseMap.put("thumb_img", "default");
-
-        caseRef.setCaseId(databaseRef.getKey()); // forward case id again (generated or given)
-
-        databaseRef.updateChildren(caseMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                completeListener.onComplete(task); // forward callback
-            }
-        });
     }
 }

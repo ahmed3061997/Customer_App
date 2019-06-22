@@ -1,5 +1,6 @@
 package com.fc.mis.charitable.adapters;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fc.mis.charitable.R;
@@ -123,13 +125,22 @@ public class NgoListAdapter extends RecyclerView.Adapter<NgoListAdapter.NgoViewH
             }
 
             Picasso.get().load(ngo.getThumbImage()).placeholder(R.drawable.default_avatar).into(mThumbImg);
-
         }
 
         private void showNgo() {
             Intent intent = new Intent(mContext, NgoProfileActivity.class);
             intent.putExtra("Ngo", mNgo);
-            mContext.startActivity(intent);
+
+            Activity activity = ((Activity) mContext);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity,
+                    mThumbImg,
+                    "ThumbImage");
+
+            if (mNgo.getThumbImage().equals("default"))
+                mContext.startActivity(intent);
+            else
+                mContext.startActivity(intent, options.toBundle());
         }
 
         private void showDetails(String catagory) {
@@ -153,7 +164,7 @@ public class NgoListAdapter extends RecyclerView.Adapter<NgoListAdapter.NgoViewH
                     } else if (which == 2) {
                         showDetails("Cases");
                     } else if (which == 3) {
-                        //showDetails("Events");
+                        showDetails("Events");
                     }
                 }
             });

@@ -14,6 +14,7 @@ import android.widget.Button;
 import com.fc.mis.charitable.R;
 import com.fc.mis.charitable.models.Ngo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -89,7 +90,21 @@ public class NgoProfileActivity extends AppCompatActivity {
         mAddress.setText(mNgo.getOrgAddress());
         mAdminName.setText(mNgo.getAdminName());
 
-        Picasso.get().load(mNgo.getThumbImage()).placeholder(R.drawable.default_avatar).into(mThumbImg);
+        // support shared item transition
+        supportPostponeEnterTransition();
+        mThumbImg.setTransitionName("ThumbImage");
+
+        Picasso.get().load(mNgo.getThumbImage()).placeholder(R.drawable.default_avatar).into(mThumbImg, new Callback() {
+            @Override
+            public void onSuccess() {
+                supportStartPostponedEnterTransition();
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 
     private void sendMessage() {

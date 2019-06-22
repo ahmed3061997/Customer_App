@@ -36,6 +36,14 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         // Required empty public constructor
     }
 
+    public EventsFragment(String ngoId) {
+        mNgoId = ngoId;
+        mOneNgo = true;
+    }
+
+    private String mNgoId;
+    private boolean mOneNgo = false;
+
     // firebase Database
     private DatabaseReference mDatabase;
 
@@ -45,10 +53,7 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
     private ArrayList<Event> mEvents;
     private EventListAdapter mAdapter;
     private SwipeRefreshLayout mRefreshLayout;
-
-    public EventsFragment(String ngoId) {
-        // load specific ngo profile
-    }
+    private ArrayList<DatabaseReference> mRefs;
 
     @Nullable
     @Override
@@ -62,7 +67,7 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         mRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.event_fragment_refresh_layout);
 
         mEvents = new ArrayList<>();
-        mAdapter = new EventListAdapter(getContext(), mEvents, true);
+        mAdapter = new EventListAdapter(getContext(), mEvents, !mOneNgo);
 
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 1);
 
@@ -74,7 +79,11 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
 
         mDatabase = FirebaseDatabase.getInstance().getReference().child("Events"); // All ngo's events
 
-        //mDatabase.addChildEventListener(this);
+        if (mOneNgo)
+            mDatabase = mDatabase.child(mNgoId); // down to an ngo node
+
+        mRefs = new ArrayList<>();
+
         mDatabase.addValueEventListener(this);
 
         return view;
@@ -95,7 +104,6 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         mAdapter.notifyDataSetChanged();
     }
 
-    private ArrayList<DatabaseReference> mRefs = new ArrayList<>();
 
     // Value event listerner for all ngo nodes
     @Override
@@ -103,6 +111,15 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         // remove listener
         // we will be kept updated with child event listener attached to every ngo node
         mDatabase.removeEventListener((ValueEventListener) this);
+
+        // in case of a targeted ngo
+        if (mOneNgo) {
+            DatabaseReference ngoRef = dataSnapshot.getRef();
+            ngoRef.addChildEventListener(this);
+
+            mRefs.add(ngoRef);
+            return;
+        }
 
         // data snapshot of events node
         // iterate each ngo node
@@ -124,9 +141,14 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
     // event added to an ngo node
     @Override
     public void onChildAdded(final @NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-        // this snapshot from an event just added
-        // get parent node of it that represents the ngo
-        String ngoId = dataSnapshot.getRef().getParent().getKey(); // ngo of this event
+        // this snapshot of an event just added
+
+        final String ngoId; // ngo of this event
+
+        if (mOneNgo) // Ngo id is already provided
+            ngoId = mNgoId;
+        else // get parent node of it that represents the ngo
+            ngoId = dataSnapshot.getRef().getParent().getKey();
 
         // Load ngo name & thumb
         FirebaseDatabase.getInstance().getReference()
@@ -144,6 +166,7 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
 
                         Event eventRef = loadFromSnapshot(dataSnapshot);
 
+                        eventRef.setNgoId(ngoId);
                         eventRef.setOrgName(ngoName);
                         eventRef.setOrgThumb(thumbImg);
 
@@ -173,6 +196,7 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
                 Event oldEvent = mEvents.get(i);
 
                 if (oldEvent.getEventId().equals(eventSnapshot.getKey())) {
+                    newEvent.setNgoId(oldEvent.getNgoId());
                     newEvent.setOrgName(oldEvent.getOrgName());
                     newEvent.setOrgThumb(oldEvent.getOrgThumb());
 

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -31,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText mPassword;
     private AppCompatImageButton mQrBtn;
     private Button mLoginBtn;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,11 @@ public class LoginActivity extends AppCompatActivity {
         mEmail = (TextInputEditText) findViewById(R.id.login_email_field);
         mPassword = (TextInputEditText) findViewById(R.id.login_password_field);
         mLoginBtn = (Button) findViewById(R.id.login_in_btn);
+
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Signing In...");
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.setCanceledOnTouchOutside(false);
 
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,9 +72,13 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        mProgressDialog.show();
+
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                mProgressDialog.hide();
+
                 if (task.isSuccessful()) {
                     Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

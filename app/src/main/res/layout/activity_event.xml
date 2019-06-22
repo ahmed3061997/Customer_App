@@ -10,18 +10,17 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:elevation="3dp"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/event_collapsing_toolbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/event_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimary" />
+            app:contentScrim="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:toolbarId="@+id/event_toolbar">
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/event_cover_img"
@@ -30,86 +29,108 @@
                 android:scaleType="centerCrop"
                 android:visibility="gone"
                 app:layout_collapseMode="parallax" />
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/event_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="8dp"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/event_title_field"
-                android:layout_width="match_parent"
+            <com.google.android.material.chip.Chip
+                android:id="@+id/event_ngo_chip"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp"
-                android:text="Case Title"
-                android:textColor="@color/colorTitle"
-                android:textSize="18sp" />
+                android:layout_gravity="center"
+                android:layout_margin="16dp"
+                android:text="Rotery"
+                android:textAppearance="@style/ChipTextAppearance"
+                app:chipEndPadding="5dp"
+                app:chipIcon="@drawable/rotary"
+                app:chipIconSize="21dp"
+                app:chipStartPadding="10dp" />
 
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/event_body_field"
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="15dp"
-                android:layout_marginEnd="15dp"
-                android:layout_marginBottom="25dp"
-                android:gravity="top"
-                android:inputType="textMultiLine"
-                android:lineSpacingExtra="4dp"
-                android:text="Body"
-                android:textColor="@color/colorSubTitle"
-                android:textSize="16sp" />
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="vertical">
 
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/event_title_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="Event Title"
+                    android:textColor="@color/colorTitle"
+                    android:textSize="18sp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/event_location_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp"
-                android:drawableStart="@drawable/ic_location"
-                android:drawablePadding="5dp"
-                android:drawableTint="@color/colorPrimary"
-                android:inputType="text"
-                android:text="Location"
-                android:textColor="@color/colorBlack"
-                android:textSize="14sp" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/event_body_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginBottom="25dp"
+                    android:text="Body"
+                    android:textColor="@color/colorSubTitle"
+                    android:textSize="16sp" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/event_time_field"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp"
-                android:drawableStart="@drawable/ic_time"
-                android:drawablePadding="5dp"
-                android:drawableTint="@color/colorAccent"
-                android:inputType="none"
-                android:text="Time"
-                android:textColor="@color/colorBlack"
-                android:textSize="14sp" />
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/event_location_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="10dp"
+                    android:drawableStart="@drawable/ic_location"
+                    android:drawablePadding="5dp"
+                    android:drawableTint="@color/colorPrimary"
+                    android:inputType="text"
+                    android:text="Location"
+                    android:textColor="@color/colorTitle"
+                    android:textSize="14sp" />
 
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/event_time_field"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="10dp"
+                    android:drawableStart="@drawable/ic_time"
+                    android:drawablePadding="5dp"
+                    android:drawableTint="@color/colorAccent"
+                    android:inputType="none"
+                    android:text="Time"
+                    android:textColor="@color/colorTitle"
+                    android:textSize="14sp" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.appcompat.widget.LinearLayoutCompat
                 android:id="@+id/event_images_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical" />
 
-            </androidx.appcompat.widget.LinearLayoutCompat>
         </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.core.widget.NestedScrollView>

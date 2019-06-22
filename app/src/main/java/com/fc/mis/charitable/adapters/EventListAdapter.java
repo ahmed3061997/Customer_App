@@ -1,5 +1,6 @@
 package com.fc.mis.charitable.adapters;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fc.mis.charitable.R;
@@ -141,7 +143,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
 
             mEventTime.setText(String.format("%s, %s %d %d:%s %s", day, month, dayNum, hour, min, dayNight));
 
-
             LanguageDetection.checkLanguageLayoutDirectionForAr(mTitle);
             LanguageDetection.checkLanguageLayoutDirectionForAr(mBody);
         }
@@ -185,7 +186,17 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.Even
         private void showEvent() {
             Intent intent = new Intent(mContext, EventActivity.class);
             intent.putExtra("Event", mEventRef);
-            mContext.startActivity(intent);
+
+            Activity activity = ((Activity) mContext);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity,
+                    mCoverImg,
+                    "CoverImage");
+
+            if (mEventRef.getThumbImg().equals("default"))
+                mContext.startActivity(intent);
+            else
+                mContext.startActivity(intent, options.toBundle());
         }
     }
 }

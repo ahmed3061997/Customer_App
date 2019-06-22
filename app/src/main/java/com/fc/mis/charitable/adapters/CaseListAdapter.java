@@ -1,5 +1,6 @@
 package com.fc.mis.charitable.adapters;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.LinearLayoutCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.fc.mis.charitable.R;
@@ -32,21 +35,15 @@ public class CaseListAdapter extends RecyclerView.Adapter<CaseListAdapter.CaseVi
     private Context mContext;
     private List<Case> mCases;
     private boolean mDisplayOrg = false;
-    private boolean mViewOnly = false;
 
-    public CaseListAdapter(Context context, List<Case> cases, boolean displayOrg, boolean viewOnly) {
+    public CaseListAdapter(Context context, List<Case> cases, boolean displayOrg) {
         this.mContext = context;
         this.mCases = cases;
         this.mDisplayOrg = displayOrg;
-        this.mViewOnly = viewOnly;
     }
 
     public boolean isDisplayOrg() {
         return mDisplayOrg;
-    }
-
-    public boolean isViewOnly() {
-        return mViewOnly;
     }
 
     @NonNull
@@ -94,15 +91,7 @@ public class CaseListAdapter extends RecyclerView.Adapter<CaseListAdapter.CaseVi
             mContentLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showCase(false);
-                }
-            });
-
-            mContentLayout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    showMenu();
-                    return false;
+                    showCase();
                 }
             });
         }
@@ -110,10 +99,10 @@ public class CaseListAdapter extends RecyclerView.Adapter<CaseListAdapter.CaseVi
         public void bindCase(Case caseRef) {
             this.mCaseRef = caseRef;
 
-            loadImage(mCoverImg, mCaseRef.getThumbImg());
+            loadImage(mCoverImg, mCaseRef.getThumbImg(), true);
 
             if (isDisplayOrg()) {
-                loadImage(mOrgImg, mCaseRef.getOrgThumb());
+                loadImage(mOrgImg, mCaseRef.getOrgThumb(), false);
                 mOrgName.setText(mCaseRef.getOrgName());
             } else {
                 mOrgImg.setVisibility(View.GONE);
@@ -138,7 +127,8 @@ public class CaseListAdapter extends RecyclerView.Adapter<CaseListAdapter.CaseVi
             LanguageDetection.checkLanguageLayoutDirectionForAr(mBody);
         }
 
-        private void loadImage(final AppCompatImageView imageView, final String url) {
+
+        private void loadImage(final AppCompatImageView imageView, final String url, final boolean placeHolder) {
             if (url == null || TextUtils.isEmpty(url) || url.equals("default")) {
                 imageView.setVisibility(View.GONE); // ensure image view is invisible
                 return;
@@ -148,58 +138,46 @@ public class CaseListAdapter extends RecyclerView.Adapter<CaseListAdapter.CaseVi
 
             imageView.setVisibility(View.VISIBLE);
 
-            Picasso.get().load(url).networkPolicy(NetworkPolicy.OFFLINE)
-                    .placeholder(R.drawable.image_place_holder).into(imageView, new Callback() {
-                @Override
-                public void onSuccess() {
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Picasso.get().load(url).placeholder(R.drawable.image_place_holder).into(imageView);
-                }
-            });
-        }
-
-
-        public void showMenu() {
-            if (isViewOnly())
-                return;
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
-
-            builder.setItems(new String[]{"View", "Edit", "Delete"}, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) {
-                        showCase(false);
-                    } else if (which == 1) {
-                        showCase(true);
-                    } else if (which == 2) {
-                        removeCase();
+            if (placeHolder)
+                Picasso.get().load(url).networkPolicy(NetworkPolicy.OFFLINE)
+                        .placeholder(R.drawable.image_place_holder).into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
                     }
-                }
-            });
 
-            builder.create().show();
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(url).placeholder(R.drawable.image_place_holder).into(imageView);
+                    }
+                });
+            else
+                Picasso.get().load(url).networkPolicy(NetworkPolicy.OFFLINE)
+                        .noPlaceholder().into(imageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(url).noPlaceholder().into(imageView);
+                    }
+                });
         }
 
-        private void showCase(boolean edit) {
-            if (isViewOnly())
-                return;
-
+        private void showCase() {
             Intent intent = new Intent(mContext, CaseActivity.class);
-            intent.putExtra("EditMode", edit);
             intent.putExtra("Case", mCaseRef);
-            mContext.startActivity(intent);
-        }
 
-        private void removeCase() {
-            mCaseRef.remove();
+            Activity activity = ((Activity) mContext);
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity,
+                    mCoverImg,
+                    "CoverImage");
 
-            notifyItemRemoved(mCases.indexOf(mCaseRef));
-
-            mCases.remove(mCaseRef);
+            if (mCaseRef.getThumbImg().equals("default"))
+                mContext.startActivity(intent);
+            else
+                mContext.startActivity(intent, options.toBundle());
         }
     }
 }

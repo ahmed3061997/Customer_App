@@ -8,6 +8,7 @@ import android.os.Handler;
 
 import com.fc.mis.charitable.R;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SplashScreenActivity extends AppCompatActivity {
     // duration of watit
@@ -19,6 +20,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
 
         FirebaseApp.initializeApp(this);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true); // keep data for offline use
 
         /* new Handler to start the Menu-Activity
            and close this splash-screen after some seconds */

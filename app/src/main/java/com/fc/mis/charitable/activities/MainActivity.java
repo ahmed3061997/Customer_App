@@ -46,6 +46,7 @@ import com.fc.mis.charitable.R;
 import com.fc.mis.charitable.fragments.HomeFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -349,6 +350,10 @@ public class MainActivity extends AppCompatActivity {
                                                 Map update_hashMap = new HashMap();
                                                 update_hashMap.put("profile_image", download_url);
                                                 update_hashMap.put("thumb_image", thumb_download_url);
+
+                                                mCurrentUser.updateProfile(new UserProfileChangeRequest.Builder()
+                                                        .setPhotoUri(Uri.parse(thumb_download_url))
+                                                        .build());
 
                                                 mDatabase.updateChildren(update_hashMap)
                                                         .addOnCompleteListener(new OnCompleteListener<Void>() {

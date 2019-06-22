@@ -20,6 +20,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -141,6 +142,10 @@ public class RegisterActivity extends AppCompatActivity {
     private void registerUser(final String first_name, final String last_name,
                               final String email_address, final String password, final String passwordAgain) {
 
+        if (password.length() < 6) {
+            mRegProgress.hide();
+            Toast.makeText(this, "Password can't be less than 6 characters", Toast.LENGTH_SHORT).show();
+        }
         mAuth.createUserWithEmailAndPassword(email_address, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -163,6 +168,10 @@ public class RegisterActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             // Sign in success, update UI with the signed-in user's information
                             // if the register is successful before moving to another intent .. dismiss the progress dialog
+
+                            mCurrentUser.updateProfile(new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(first_name + " " + last_name)
+                                    .build());
 
                             mCurrentUser.sendEmailVerification().addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<Void>() {
                                 @Override
