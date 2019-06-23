@@ -154,7 +154,7 @@ public class RegisterActivity extends AppCompatActivity {
                     // this is how we can get the current user id
                     mCurrentUser = mAuth.getCurrentUser();
                     String user_id = mCurrentUser.getUid();
-                    mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(user_id);
+                    mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(user_id);
 
                     HashMap<String, Object> userMap = new HashMap<>();
                     userMap.put("first_name", first_name);

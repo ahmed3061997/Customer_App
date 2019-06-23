@@ -153,6 +153,7 @@ public class EventsFragment extends Fragment implements ChildEventListener, Swip
         // Load ngo name & thumb
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
+                .child("Ngos")
                 .child(ngoId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override

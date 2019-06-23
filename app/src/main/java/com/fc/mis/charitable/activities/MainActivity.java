@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                 final byte[] thumb_bytes = baos.toByteArray();
 
 
-                mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(Current_User_Id);
+                mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Customers").child(Current_User_Id);
 
                 final StorageReference profile_filepath = mImageStorage.child("profile_images").child(Current_User_Id + ".jpg");
                 // create another storage reference for our thumbnail images ...

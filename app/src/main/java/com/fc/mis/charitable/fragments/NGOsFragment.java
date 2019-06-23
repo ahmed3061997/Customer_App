@@ -50,7 +50,7 @@ public class NGOsFragment extends Fragment implements ChildEventListener {
         mNgoListView.setItemAnimator(new DefaultItemAnimator());
         mNgoListView.setAdapter(mAdapter);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+        mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child("Ngos");
 
         // add ngos
         mDatabase.addChildEventListener(this);
@@ -90,11 +90,9 @@ public class NGOsFragment extends Fragment implements ChildEventListener {
 
     @Override
     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-        if (dataSnapshot.hasChild("org_name")) { // ngo user
-            Ngo ngo = loadNgo(dataSnapshot);
-            mNgos.add(ngo);
-            mAdapter.notifyDataSetChanged();
-        }
+        Ngo ngo = loadNgo(dataSnapshot);
+        mNgos.add(ngo);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

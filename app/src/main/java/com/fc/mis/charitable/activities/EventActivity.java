@@ -214,7 +214,7 @@ public class EventActivity extends AppCompatActivity {
     private void showNgo() {
         final String ngoId = mEvent.getNgoId();
 
-        FirebaseDatabase.getInstance().getReference().child("Users").child(ngoId).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("Users").child("Ngos").child(ngoId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 dataSnapshot.getRef().removeEventListener(this);

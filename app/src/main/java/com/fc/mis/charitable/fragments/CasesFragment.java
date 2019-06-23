@@ -149,6 +149,7 @@ public class CasesFragment extends Fragment implements ChildEventListener, Swipe
         // Load ngo name & thumb
         FirebaseDatabase.getInstance().getReference()
                 .child("Users")
+                .child("Ngos")
                 .child(ngoId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
